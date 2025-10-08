@@ -3920,6 +3920,17 @@ static const char _data_FX_MODE_PERCENT[] PROGMEM = "Percent@,% of fill,,,,One c
  * Modulates the brightness similar to a heartbeat
  * (unimplemented?) tries to draw an ECG approximation on a 2D matrix
  */
+/* usermod idea: all the effect here needs to do is tell the GPIO to fire,
+and its timers will do their magic. For the sound board, we need 150ms of
+lead time, which is high, so that offset needs to happen here--or we need
+to design to skip a pulse so we can lock in the timing, which will be longer
+and so less accurate.
+*/
+//extern uint32_t GpioSyncMailbox;
+const gpio_num_t pulsePin = GPIO_NUM_25;
+//const uint32_t msPerGpioPulse = 125;
+//const unsigned long msLeadTime = 125 + 120;
+
 uint16_t mode_heartbeat(void) {
   unsigned bpm = 40 + (SEGMENT.speed >> 3);
   uint32_t msPerBeat = (60000L / bpm);
@@ -3938,6 +3949,13 @@ uint16_t mode_heartbeat(void) {
     SEGENV.aux1 = UINT16_MAX; //full bri
     SEGENV.aux0 = 0;
     SEGENV.step = strip.now;
+  }
+
+  // fire ahead of the effect loop
+  if (beatTimer <= 130) { // ADafruit page says it needs at least a 125ms pulse
+    digitalWrite(pulsePin, LOW);
+  } else {
+    digitalWrite(pulsePin, HIGH);
   }
 
   for (int i = 0; i < SEGLEN; i++) {

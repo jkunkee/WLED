@@ -242,6 +242,8 @@
 #include "../usermods/LD2410_v2/usermod_ld2410.h"
 #endif
 
+#include "../usermods/gpiosync/usermod_gpiosync.h"
+
 void registerUsermods()
 {
 /*
@@ -470,4 +472,6 @@ void registerUsermods()
   #ifdef USERMOD_POV_DISPLAY
   UsermodManager::add(new PovDisplayUsermod());
   #endif
+
+  UsermodManager::add(new GpioSyncUsermod());
 }
